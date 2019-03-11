@@ -25,6 +25,9 @@
                 <order_status>pending</order_status>
                 <allowspecific>0</allowspecific>
                 <min_order_total>0.50</min_order_total>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <cctypes>AE,VI,MC,DI,JCB,CUP,DN,MI</cctypes>
             </easytransac_gateway>
         </payment>
     </default>
