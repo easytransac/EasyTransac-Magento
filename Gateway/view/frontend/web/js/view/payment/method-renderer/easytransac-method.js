@@ -95,7 +95,7 @@ define(
                     var _space = $('#easytransac-oneclick');
                     
                     // Label
-                    _space.append($('<span style="width:100px;" title="Direct credit card payment">OneClick : </span>'));
+                    _space.append($('<span style="width:100px;" title="Direct credit card payment">Choisissez une carte : </span>'));
                     
                     // Dropdown
                     _space.append($('<select id="etalcadd001" style="width:200px; margin-left:10px;">'));
@@ -105,7 +105,7 @@ define(
                     });
                     
                     // Button
-                    _space.append($(' <button id="etocbu001" type="button" style="width:150px; margin-left:15px;">OneClick Pay</button>'));
+                    _space.append($(' <button id="etocbu001" type="button" style="width:150px; margin-left:15px;">Payer maintenant</button>'));
                     
                     $('#etocbu001').click(function(e){
                         e.preventDefault();
