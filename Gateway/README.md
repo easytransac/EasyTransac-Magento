@@ -1,7 +1,7 @@
 magento2-Easytransac_Gateway
 ============================
 
-EasyTransac payment gateway Magento2 extension. For Magento 2.1.
+EasyTransac payment gateway Magento2 extension. For Magento 2.3.4.
 
 
 Install
@@ -17,7 +17,7 @@ Install
     ```
 3. Enable and configure Easytransac in Magento Admin under Stores/Configuration/Payment Methods/EasyTransac
 
-Other Notes
+Notes
 ===========
 
 * EasyTransac works with EUR only.
