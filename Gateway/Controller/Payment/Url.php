@@ -74,10 +74,19 @@ Class Url extends \Magento\Framework\App\Action\Action
 		$amount = (int)($total_val * 100);
 		$multiple_payments = false;
 		$three_d_secure = $this->easytransac->getConfigData('three_d_secure');
-		$billing_address = $this->customerSession
-								->getCustomer()
-								->getDefaultBillingAddress()
-								->convertToArray();
+
+
+		if(!is_object($this->customerSession->getCustomer()->getDefaultBillingAddress()))
+		{
+			$billing_address = $this->getRequest()->getPostValue()['billing_address'];
+		}
+		else
+		{
+			$billing_address = $this->customerSession
+									->getCustomer()
+									->getDefaultBillingAddress()
+									->convertToArray();
+		}
 		
 		// Takes default address if received address is empty.
 		if(isset($_POST['billing_address']['street'])
@@ -125,7 +134,6 @@ Class Url extends \Magento\Framework\App\Action\Action
 		  "Firstname" => $billing_address['firstname'],
 		  "Lastname" => $billing_address['lastname'],
 		  "Address" => $billing_address['street'],
-		  "Address" => $billing_address['street'],
 		  "ZipCode" => $billing_address['postcode'],
 		  "City" => $billing_address['city'],
 		  "BirthDate" => "",
@@ -134,7 +142,7 @@ Class Url extends \Magento\Framework\App\Action\Action
 		  "Phone" => $billing_address['telephone'],
 		  "UserAgent" => isset($_SERVER['HTTP_USER_AGENT']) 
 			? $_SERVER['HTTP_USER_AGENT'] : '',
-		  "Version" => 'Magento 1.0.3',
+		  "Version" => 'Magento 2.3.4.1',
 		  "Language" => $langcode,
 		);
 		

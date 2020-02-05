@@ -11,7 +11,6 @@
 /*global define*/
 define(
     [
-//        'Magento_Payment/js/view/payment/cc-form',
         'Magento_Checkout/js/view/payment/default',
         'jquery',
         'Magento_Checkout/js/model/quote',
@@ -38,8 +37,6 @@ define(
             },
 
             validate: function() {
-//                var $form = $('#' + this.getCode() + '-form');
-//                return $form.validation() && $form.validation('isValid');
                 return true;
             },
             
@@ -145,8 +142,6 @@ define(
             /** Redirect to EasyTransac */
             continueToEasytransac: function () {
                 fullScreenLoader.startLoader();
-//                console.log('continueToEasytransac');
-//                window.SQ = quote;
                 var address = quote.billingAddress();
                 var payload = {
                     cart_id: quote.getQuoteId(),
@@ -188,7 +183,6 @@ define(
                     dataType: 'json'
                 }).done(function (data) {
                     if(data.error === 'no'){
-//                        XxXself.placeOrder();
                         self.paymentPageUrl = data.payment_page;
                         $.mage.redirect(data.payment_page);
 
@@ -204,10 +198,7 @@ define(
              * @unused
              */
             afterPlaceOrder: function () {
-//                console.log('afterPlaceOrder');
-
-                // Redirect to payment page
-//                $.mage.redirect(this.paymentPageUrl);
+                // not implemented
             }
         });
     }

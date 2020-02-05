@@ -14,14 +14,13 @@ Class Listcards extends \Easytransac\Gateway\Controller\OneClickAction
 	{
 		parent::execute();
 		$output = array('status' => 0);
-		
-		if (($client_id = $this->easytransac->getConfigData('api_key')))
+
+		if ( $this->easytransac->getConfigData('oneclick') && ($client_id = $this->getClientId()) && ($api_key = $this->easytransac->getConfigData('api_key')))
 		{
 			$data = array(
-				"ClientId" => $this->getClientId(),
+				"ClientId" => $client_id,
 			);
-			$response = $this->api->setServiceListCards()->communicate(
-					$this->easytransac->getConfigData('api_key'), $data);
+			$response = $this->api->setServiceListCards()->communicate($api_key, $data);
 
 			if (!empty($response['Result']))
 			{

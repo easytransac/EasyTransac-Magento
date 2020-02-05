@@ -14,11 +14,20 @@ Class OneClick extends \Easytransac\Gateway\Controller\OneClickAction
 		$total_val = $grand_total->getValue();
 		$amount = (int)($total_val * 100);
 		$multiple_payments = false;
-		$billing_address = $this->customerSession
-								->getCustomer()
-								->getDefaultBillingAddress()
-								->convertToArray();
-		
+
+
+		if(!is_object($this->customerSession->getCustomer()->getDefaultBillingAddress()))
+		{
+			$billing_address = $this->getRequest()->getPostValue()['billing_address'];
+		}
+		else
+		{
+			$billing_address = $this->customerSession
+									->getCustomer()
+									->getDefaultBillingAddress()
+									->convertToArray();
+		}
+
 		if(isset($_POST['billing_address']['street'])
 			&& (empty($_POST['billing_address']['street']) 
 					|| !is_array($_POST['billing_address']['street']))){

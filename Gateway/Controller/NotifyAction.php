@@ -3,11 +3,14 @@
 namespace Easytransac\Gateway\Controller;
 
 use Easytransac\Gateway\Model\EasytransacApi;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
 
 /**
  * Parent class for Notification & Returnpage & OneClickAction.
  */
-class NotifyAction extends \Magento\Framework\App\Action\Action
+class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
 		/**
      * @var \Magento\Sales\Model\Order
@@ -119,6 +122,16 @@ class NotifyAction extends \Magento\Framework\App\Action\Action
 		$this->customerRepo = $customerRepo;
 		$this->_checkoutSession = $_checkoutSession;
 	}
+
+	public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return true;
+    }
 	
 	/**
 	 * Default is for Notification.
