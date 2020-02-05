@@ -13,79 +13,79 @@ use Magento\Framework\App\Request\InvalidRequestException;
 class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
 		/**
-     * @var \Magento\Sales\Model\Order
-     */
-    protected $_order;
+	 * @var \Magento\Sales\Model\Order
+	 */
+	protected $_order;
 	
 	/**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
-     */
-    protected $_order_repo;
+	 * @var \Magento\Sales\Api\OrderRepositoryInterface
+	 */
+	protected $_order_repo;
 	
 	/**
-     * @var \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface
-     */
-    protected $_builder;
+	 * @var \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface
+	 */
+	protected $_builder;
 	
 	/**
-     * @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender
-     */
-    protected $_invoiceSender;
+	 * @var \Magento\Sales\Model\Order\Email\Sender\InvoiceSender
+	 */
+	protected $_invoiceSender;
 	
 	/**
-     * @var \Magento\Sales\Model\Service\InvoiceService
-     */
-    protected $_invoice_service;
+	 * @var \Magento\Sales\Model\Service\InvoiceService
+	 */
+	protected $_invoice_service;
 	
 	/**
-     * @var \Magento\Framework\DB\Transaction
-     */
-    protected $_db_transaction;
+	 * @var \Magento\Framework\DB\Transaction
+	 */
+	protected $_db_transaction;
 	
 	/**
-     * @var \Magento\Framework\Logger\Monolog\Logger
-     */
-    protected $logger;
+	 * @var \Magento\Framework\Logger\Monolog\Logger
+	 */
+	protected $logger;
 	
 	/**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
-     */
-    protected $quoteRepository;
+	 * @var \Magento\Quote\Api\CartRepositoryInterface
+	 */
+	protected $quoteRepository;
 	
 	/**
-     * @var \Magento\Quote\Model\QuoteManagement
-     */
-    protected $quoteManagement;
+	 * @var \Magento\Quote\Model\QuoteManagement
+	 */
+	protected $quoteManagement;
 	
 	/**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
+	 * @var \Magento\Store\Model\StoreManagerInterface
+	 */
+	protected $storeManager;
 	
 	/**
-     * @var \Easytransac\Gateway\Model\EasytransacApi
-     */
-    protected $api;
+	 * @var \Easytransac\Gateway\Model\EasytransacApi
+	 */
+	protected $api;
 	
 	/**
-     * @var \Magento\Customer\Model\Session
-     */
-    protected $customerSession;
+	 * @var \Magento\Customer\Model\Session
+	 */
+	protected $customerSession;
 	
 	/**
-     * @var \Easytransac\Gateway\Model\Payment
-     */
-    protected $easytransac;
+	 * @var \Easytransac\Gateway\Model\Payment
+	 */
+	protected $easytransac;
 	
 	/**
-     * @var \Easytransac\Gateway\Model\Payment
-     */
-    protected $customerRepo;
+	 * @var \Easytransac\Gateway\Model\Payment
+	 */
+	protected $customerRepo;
 	
 	/**
-     * @var \Magento\Checkout\Model\Session
-     */
-    protected $_checkoutSession;
+	 * @var \Magento\Checkout\Model\Session
+	 */
+	protected $_checkoutSession;
 	
 	public function __construct(
 		\Magento\Framework\App\Action\Context $context,
@@ -124,14 +124,14 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 	}
 
 	public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
-    }
+	{
+		return null;
+	}
 
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
+	public function validateForCsrf(RequestInterface $request): ?bool
+	{
+		return true;
+	}
 	
 	/**
 	 * Default is for Notification.
@@ -289,6 +289,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 			// Update changes
 			$quote->save();
 			$order = $this->quoteManagement->submit($quote);
+
 			if (!$order) {
 				$this->logger->error('EasyTransac Error: Notification : Quote couldn\'t be submitted.');
 				echo 'Quote submission error';
@@ -329,7 +330,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 			$payment->setParentTransactionId(null);
 			$payment->save();
 		}
-		
+
 		// Sets order status.
 		$order_status = null;
 		switch ($received_data['Status'])
@@ -371,22 +372,20 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 				->save();
 			}
 		} else {
-			$old_status = $order->getStatus() . ' - ' . $order->getState();
+			// In case of submitted quote, used the quote reserverd order id.
+			$order = $this->_order->load($quote->getReservedOrderId());
 		}
 
 		// Payment occured.
 		$order->setState($order_status);
 		$order->setStatus($order_status);
 		$order->save();
-		$transaction->save();
+
+		if($quote->getIsActive()) {
+			$transaction->save();
+		}
 		
-//		if(!$quote->getIsActive()) {
-//			echo "Status updated from $old_status to $order_status.\n";
-//		}
-		
-		// Sends invoice
 		$this->invoice($order->getId());
-//		echo 'Transaction registration terminated.';
 	}
 
 
