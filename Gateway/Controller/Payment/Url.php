@@ -151,7 +151,7 @@ Class Url extends \Magento\Framework\App\Action\Action
 			\EasyTransac\Core\Logger::getInstance()->write('Payment Exception: ' . $exc->getMessage());
 		}
 		
-		if(!$response->isSuccess()){
+		if($response->isSuccess()){
 			echo json_encode(array(
 				'payment_page' => $response->getContent()->getPageUrl(), 'error' => 'no'
 			));
