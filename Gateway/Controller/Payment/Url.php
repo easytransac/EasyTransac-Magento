@@ -128,7 +128,7 @@ Class Url extends \Magento\Framework\App\Action\Action
 		  "ReturnUrl" => $this->storeManager->getStore()->getBaseUrl()
 				. 'easytransac/payment/returnpage',
 		  "CancelUrl" => $this->storeManager->getStore()->getBaseUrl() 
-				. 'checkout',
+				. 'easytransac/payment/returnpage?cancel=yes',
 		  "3DS" => $three_d_secure ? 'yes' : 'no',
 		  "MultiplePayments" => $multiple_payments ? 'yes' : 'no',
 		  "Firstname" => $billing_address['firstname'],

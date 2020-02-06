@@ -13,7 +13,7 @@ class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 	public function execute()
 	{
 		// User hasn't followed the standard checkout process.
-		if(empty($_SESSION['easytransac_gateway_processing_qid'])) {
+		if(isset($_GET['cancel']) || empty($_SESSION['easytransac_gateway_processing_qid'])) {
 			$this->_redirect('checkout/cart');
 			return;
 		}
