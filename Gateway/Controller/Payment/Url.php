@@ -92,12 +92,12 @@ Class Url extends \Magento\Framework\App\Action\Action
 		if(isset($_POST['billing_address']['street'])
 			&& (empty($_POST['billing_address']['street']) 
 					|| !is_array($_POST['billing_address']['street']))){
-			$street = $billing_address['street'];
+			$billing_address['street'] = $billing_address['street'];
 		}elseif(isset($_POST['billing_address']['street'])
 				&& is_array($_POST['billing_address']['street'])){
-			$street = implode(' ', $_POST['billing_address']['street']);
+			$billing_address['street'] = implode(' ', $_POST['billing_address']['street']);
 		}
-		
+
 		// Reserves order
 		$quote = $this->_checkoutSession->getQuote();
 		$quote->collectTotals();
