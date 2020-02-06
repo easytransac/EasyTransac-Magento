@@ -2,8 +2,6 @@
 
 namespace EasyTransac\Gateway\Controller\Payment;
 
-use Easytransac\Gateway\Model\EasytransacApi;
-
 class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 {
 
@@ -50,15 +48,7 @@ class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 			return;
 		}
 		
-		if(!EasytransacApi::validateIncoming($received_data, $this->easytransac->getConfigData('api_key'))) {
-			$this->logger->error('EasyTransac Error: Returnpage : Incoming packet validation failed');
-			$this->_redirect('checkout/cart');
-			return;
-		}
-		
 		$this->processResponse($received_data);
-		
-//		$this->_redirect('checkout/onepage/success/');
 		
 		switch ($received_data['Status'])
 		{

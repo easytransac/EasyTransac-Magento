@@ -2,8 +2,6 @@
 
 namespace Easytransac\Gateway\Controller\Payment;
 
-use Easytransac\Gateway\Model\EasytransacApi;
-
 Class Listcards extends \Easytransac\Gateway\Controller\OneClickAction
 {
 
@@ -15,19 +13,24 @@ Class Listcards extends \Easytransac\Gateway\Controller\OneClickAction
 		parent::execute();
 		$output = array('status' => 0);
 
-		if ( $this->easytransac->getConfigData('oneclick') && ($client_id = $this->getClientId()) && ($api_key = $this->easytransac->getConfigData('api_key')))
+		if ( $this->easytransac->getConfigData('oneclick') && ($clientId = $this->getClientId()) && ($api_key = $this->easytransac->getConfigData('api_key')))
 		{
-			$data = array(
-				"ClientId" => $client_id,
-			);
-			$response = $this->api->setServiceListCards()->communicate($api_key, $data);
+			\EasyTransac\Core\Services::getInstance()->provideAPIKey($this->easytransac->getConfigData('api_key'));
+			$customer = (new \EasyTransac\Entities\Customer())->setClientId($clientId);
+			$request = new \EasyTransac\Requests\CreditCardsList();
 
-			if (!empty($response['Result']))
-			{
+			try {
+				$response = $request->execute($customer);
+			}
+			catch(\Exception $exc) {
+				\EasyTransac\Core\Logger::getInstance()->write('Listcards Exception: ' . $exc->getMessage());
+			}
+
+			if ($response->isSuccess()) {
 				$buffer = array();
-				foreach ($response['Result'] as $row)
-				{
-					$buffer[] = array_intersect_key($row, array('Alias' => 1, 'CardNumber' => 1));
+				foreach ($response->getContent()->getCreditCards() as $cc) {
+					/* @var $cc EasyTransac\Entities\CreditCard */
+					$buffer[] = array('Alias' => $cc->getAlias(), 'CardNumber' => $cc->getNumber());
 				}
 				$output = array('status' => !empty($buffer), 'packet' => $buffer);
 			}

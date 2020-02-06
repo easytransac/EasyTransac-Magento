@@ -1,6 +1,8 @@
 <?php
 
 namespace Easytransac\Gateway\Controller\Payment;
+require __DIR__ . DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR  . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
 
 Class Cancel extends \Magento\Framework\App\Action\Action
 {
@@ -37,23 +39,6 @@ Class Cancel extends \Magento\Framework\App\Action\Action
 	 */
 	public function execute()
 	{
-//		if(($last_order = $this->checkout_session->getLastRealOrder()) 
-//			&& $last_order->getId() !== null){
-//			
-//			$items = $last_order->getItemsCollection();
-//			$this->cart->truncate();
-//			foreach ($items as $item) {
-//				try {
-//					$this->cart->addOrderItem($item);
-//				}
-//				catch (\Exception $e) {
-//					$this->checkout_session->addException($e,
-//						__('Cannot add the item to shopping cart.'));
-//				}
-//			}
-//			$this->cart->save();
-//			$this->repo->delete($last_order);
-//		}
 		$this->_redirect('checkout/cart');
 	}
 

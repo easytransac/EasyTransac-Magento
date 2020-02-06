@@ -1,9 +1,7 @@
 <?php
 
 namespace Easytransac\Gateway\Controller;
-
-use Easytransac\Gateway\Model\EasytransacApi;
-
+require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 /**
  * OneClick payment logic parent for OneClick.
  */

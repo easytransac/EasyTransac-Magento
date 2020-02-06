@@ -2,8 +2,6 @@
 
 namespace Easytransac\Gateway\Controller\Payment;
 
-
-
 Class OneClick extends \Easytransac\Gateway\Controller\OneClickAction
 {
 
@@ -13,30 +11,7 @@ Class OneClick extends \Easytransac\Gateway\Controller\OneClickAction
 		$grand_total = $totals['grand_total'];
 		$total_val = $grand_total->getValue();
 		$amount = (int)($total_val * 100);
-		$multiple_payments = false;
 
-
-		if(!is_object($this->customerSession->getCustomer()->getDefaultBillingAddress()))
-		{
-			$billing_address = $this->getRequest()->getPostValue()['billing_address'];
-		}
-		else
-		{
-			$billing_address = $this->customerSession
-									->getCustomer()
-									->getDefaultBillingAddress()
-									->convertToArray();
-		}
-
-		if(isset($_POST['billing_address']['street'])
-			&& (empty($_POST['billing_address']['street']) 
-					|| !is_array($_POST['billing_address']['street']))){
-			$street = $billing_address['street'];
-		}elseif(isset($_POST['billing_address']['street'])
-				&& is_array($_POST['billing_address']['street'])){
-			$street = implode(' ', $_POST['billing_address']['street']);
-		}
-		
 		// Reserve order (not good -> sets quote to inactive)
 		$quote = $this->_checkoutSession->getQuote();
 		$quote->collectTotals();
@@ -55,32 +30,40 @@ Class OneClick extends \Easytransac\Gateway\Controller\OneClickAction
 		// End reserve order
 
 		$_SESSION['easytransac_gateway_processing_qid'] = $this->_checkoutSession->getQuoteId();
+
+		\EasyTransac\Core\Services::getInstance()->provideAPIKey($this->easytransac->getConfigData('api_key'));
+
+		// SDK OneClick
+		$transaction = (new \EasyTransac\Entities\OneClickTransaction())
+		->setAlias(strip_tags($_POST['Alias']))
+		->setAmount($amount)
+		->setOrderId($this->_checkoutSession->getQuoteId())
+		->setClientId($this->getClientId());
 		
-		$data = array(
-			"Alias" => $_POST['Alias'],
-			"Amount" => $amount,
-			"ClientIp" => $this->get_visitor_ip(),
-			"OrderId" => $this->_checkoutSession->getQuoteId(),
-			"ClientId" => $this->getClientId(),
-			"UserAgent" => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-		);
+		$request = new \EasyTransac\Requests\OneClickPayment();
+
+		try {
+			$response = $request->execute($transaction);
+		}
+		catch(\Exception $exc) {
+			\EasyTransac\Core\Logger::getInstance()->write('Payment Exception: ' . $exc->getMessage());
+		}
 		
-		// EasyTransac communication.
-		$et_return = $this->api
-				->setServiceOneClick()
-				->communicate($this->easytransac->getConfigData('api_key'), $data);
 		
-		if(!empty($et_return['Error'])) {
+		if(!$response->isSuccess()) {
 			echo json_encode(array(
-				'error' => 'yes', 'message' => $et_return['Error']
+				'error' => 'yes', 'message' => $response->getErrorCode() . ' - ' .$response->getErrorMessage()
 			));
 			return;
 		}
 
-		$this->processResponse($et_return['Result']);
+		/* @var $doneTransaction \EasyTransac\Entities\DoneTransaction */
+		$doneTransaction = $response->getContent();
+
+		$this->processResponse($doneTransaction);
 		
 		$json_status_output = '';
-		switch ($et_return['Result']['Status'])
+		switch ($doneTransaction->getStatus())
 		{
 			case 'captured':
 			case 'pending':
@@ -91,20 +74,11 @@ Class OneClick extends \Easytransac\Gateway\Controller\OneClickAction
 				$json_status_output = 'failed';
 				break;
 		}
-		
-		if(!empty($et_return['Result']['Error'])){
-			$this->logger->error('EasyTransac Error: ' . $et_return['Result']['Error']);
-			echo json_encode(array(
-				'error' => 'yes', 'message' => $et_return['Result']['Error']
-			));
-		}
-		else{
-			echo json_encode(array(
-				'paid_status' => $json_status_output,
-				'error' => 'no',
-				'redirect_page' => $this->storeManager->getStore()->getBaseUrl()
-				. 'easytransac/payment/returnpage',
-			));
-		}
+
+		echo json_encode(array(
+			'paid_status' => $json_status_output,
+			'error' => 'no',
+			'redirect_page' => $this->storeManager->getStore()->getBaseUrl(). 'easytransac/payment/returnpage',
+		));
 	}
 }

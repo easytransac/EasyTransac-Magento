@@ -2,10 +2,10 @@
 
 namespace Easytransac\Gateway\Controller;
 
-use Easytransac\Gateway\Model\EasytransacApi;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
+require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor'. DIRECTORY_SEPARATOR . 'autoload.php';
 
 /**
  * Parent class for Notification & Returnpage & OneClickAction.
@@ -63,11 +63,6 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 	protected $storeManager;
 	
 	/**
-	 * @var \Easytransac\Gateway\Model\EasytransacApi
-	 */
-	protected $api;
-	
-	/**
 	 * @var \Magento\Customer\Model\Session
 	 */
 	protected $customerSession;
@@ -95,7 +90,6 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 		\Magento\Sales\Model\Order\Email\Sender\InvoiceSender $_invoiceSender,
 		\Magento\Sales\Model\Service\InvoiceService $_invoice_service,
 		\Magento\Framework\DB\Transaction $_db_transaction,
-		\Easytransac\Gateway\Model\EasytransacApi $api,
 		\Psr\Log\LoggerInterface $logger,
 		\Easytransac\Gateway\Model\Payment $easytransac,
 		\Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
@@ -118,7 +112,6 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 		$this->quoteManagement = $quoteManagement;
 		$this->customerSession = $customerSession;
 		$this->storeManager = $storeManager;
-		$this->api = $api;
 		$this->customerRepo = $customerRepo;
 		$this->_checkoutSession = $_checkoutSession;
 	}
@@ -144,11 +137,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 			$this->logger->error('EasyTransac Error: Notification : Empty packet');
 			die;
 		}
-		
-		if(!EasytransacApi::validateIncoming($received_data, $this->easytransac->getConfigData('api_key'))) {
-			$this->logger->error('EasyTransac Error: Notification : Incoming packet validation failed');
-			die;
-		}
+
 		$this->processResponse($received_data);
 	}
 	
@@ -181,13 +170,20 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 	 */
 	public function processResponse($received_data) {
 		
-		file_put_contents(__DIR__.'/payload.log', date('c')."\n\n".var_export($received_data, true));
+		try {
+			$response = \EasyTransac\Core\PaymentNotification::getContent($received_data, $this->easytransac->getConfigData('api_key'));
+
+			if(!$response) throw new \Exception ('empty response');
+		}
+		catch (\Exception $exc) {
+			\EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
+		}
 		
 		// Instant fail, quote won't be submitted;
-		if($received_data['Status'] == 'failed') return;
+		if($response->getStatus() == 'failed') return;
 		
 		try {
-			$quote = $this->quoteRepository->get($received_data['OrderId']);
+			$quote = $this->quoteRepository->get($response->getOrderId());
 			if ($quote->getIsActive() && $quote->isVirtual()) {
 				if($this->customerSession->getCustomer()->getDefaultBillingAddress()) {
 					$quote->getBillingAddress()->addData(
@@ -296,7 +292,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 				die;
 			}
 
-			$trx = $received_data['Tid'];
+			$trx = $response->getTid();
 			$paymentData = array();
 
 			// Create Transaction
@@ -333,7 +329,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 
 		// Sets order status.
 		$order_status = null;
-		switch ($received_data['Status'])
+		switch ($response->getStatus())
 		{
 			case 'failed':
 				$order_status = \Magento\Sales\Model\Order::STATE_CANCELED;
@@ -341,8 +337,8 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 
 			case 'captured':
 				$order_status = \Magento\Sales\Model\Order::STATE_PROCESSING;
-				$order->setTotalPaid((float)$received_data['Amount']);
-				$this->saveClientIdForCustomerId($received_data['Client']['Id'], $received_data['Uid']);
+				$order->setTotalPaid((float)$response->getAmount());
+				$this->saveClientIdForCustomerId($response->getClientId(), $response->getUid());
 				break;
 
 			case 'pending':
@@ -360,7 +356,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 			$totals = $quote->getTotals();
 			$grand_total = $totals['grand_total'];
 			$quote_amount = (float)$grand_total->getValue();
-			if($quote_amount != (float)$received_data['Amount']) {
+			if($quote_amount != (float)$response->getAmount()) {
 				
 				// Fraud detected !
 				$order_status = \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW;
