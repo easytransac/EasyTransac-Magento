@@ -134,7 +134,7 @@ Class Url extends \Magento\Framework\App\Action\Action
 
 		$transaction = (new \EasyTransac\Entities\PaymentPageTransaction())
 		->setAmount($amount)
-		->setCustomer($$customer)
+		->setCustomer($customer)
 		->setOrderId($this->_checkoutSession->getQuoteId())
 		->setReturnUrl($this->storeManager->getStore()->getBaseUrl().'easytransac/payment/returnpage')
 		->setCancelUrl($this->storeManager->getStore()->getBaseUrl() .'easytransac/payment/returnpage?cancel=yes')
