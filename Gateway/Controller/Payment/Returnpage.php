@@ -37,6 +37,10 @@ class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 			$this->pendingPage();
 			return;
 		}
+		
+		// added data _Token by Magento
+		if(isset($_POST['data']))
+			unset($_POST['data']);
 
 		$received_data = $_POST;
 
