@@ -37,7 +37,7 @@ class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 			$this->pendingPage();
 			return;
 		}
-		
+
 		// added data _Token by Magento
 		if(isset($_POST['data']))
 			unset($_POST['data']);
@@ -52,7 +52,11 @@ class Returnpage extends \Easytransac\Gateway\Controller\NotifyAction
 			return;
 		}
 		
-		$this->processResponse($received_data);
+		try{
+			$this->processResponse($received_data);
+		} catch (\Exception $ex) {
+			$this->logger->error('Payment exception: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
+		}
 		
 		switch ($received_data['Status'])
 		{

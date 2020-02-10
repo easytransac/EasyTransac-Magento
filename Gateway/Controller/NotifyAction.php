@@ -138,7 +138,11 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 			die;
 		}
 
-		$this->processResponse($received_data);
+		try{
+			$this->processResponse($received_data);
+		} catch (\Exception $exc) {
+			$this->logger->error('Payment exception: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
+		}
 	}
 	
 	/**
@@ -170,6 +174,8 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 	 */
 	public function processResponse($received_data) {
 		
+		$order = null;
+
 		try {
 			$response = \EasyTransac\Core\PaymentNotification::getContent($received_data, $this->easytransac->getConfigData('api_key'));
 
@@ -177,6 +183,8 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 		}
 		catch (\Exception $exc) {
 			\EasyTransac\Core\Logger::getInstance()->write('Payment error: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
+
+			// @TODO if exception, no $response
 		}
 		
 		// Instant fail, quote won't be submitted;
@@ -367,7 +375,7 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 				->setIsCustomerNotified(true)
 				->save();
 			}
-		} else {
+		} elseif(!$order) {
 			// In case of submitted quote, used the quote reserverd order id.
 			$order = $this->_order->load($quote->getReservedOrderId());
 		}
@@ -375,11 +383,16 @@ class NotifyAction extends \Magento\Framework\App\Action\Action implements CsrfA
 		// Payment occured.
 		$order->setState($order_status);
 		$order->setStatus($order_status);
-		$order->save();
 
-		if($quote->getIsActive()) {
-			$transaction->save();
+		try {
+			$order->save();
+			if($quote->getIsActive()) {
+				$transaction->save();
+			}
+		} catch (\Exception $exc) {
+			$this->logger->error('Payment exception: ' . $exc->getCode() . ' (' . $exc->getMessage().') ');
 		}
+
 		
 		$this->invoice($order->getId());
 	}
