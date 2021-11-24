@@ -138,8 +138,8 @@ Class Url extends \Magento\Framework\App\Action\Action
 		->setOrderId($this->_checkoutSession->getQuoteId())
 		->setReturnUrl($this->storeManager->getStore()->getBaseUrl().'easytransac/payment/returnpage')
 		->setCancelUrl($this->storeManager->getStore()->getBaseUrl() .'easytransac/payment/returnpage?cancel=yes')
-		->setSecure($three_d_secure ? 'yes' : 'no')
-		->setVersion('Magento 2.3.4.1')
+		->setSecure('yes')
+		->setVersion('Magento 2.3.7')
 		->setLanguage($langcode);
 
 		/* @var $response \EasyTransac\Entities\PaymentPageInfos */
