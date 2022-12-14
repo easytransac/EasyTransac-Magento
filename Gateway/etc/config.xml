@@ -1,34 +1,64 @@
 <?xml version="1.0"?>
 <!--
 /**
-* Easytransac_Gateway default configuration.
-*
-* @category    Easytransac
-* @package     Easytransac_Gateway
-* @author      Easytrasac
-* @copyright   Easytransac (https://www.easytransac.com)
-* @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ * Easytransac_Gateway payment method.
+ *
+ * @category    Easytransac
+ * @package     Easytransac_Gateway
+ * @author      Easytrasac
+ * @copyright   Easytransac (https://www.easytransac.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <easytransac_gateway>
+            <!--EasyTransac Multiple Payment-->
+            <easytransac_multipayment>
                 <active>0</active>
-                <model>Easytransac\Gateway\Model\Payment</model>
-                <!--<payment_action>authorize_capture</payment_action>-->
-                <!--<payment_action>authorize</payment_action>-->
-                <payment_action>order</payment_action>
-                <title>EasyTransac</title>
-                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <title>Multipayment by EasyTransac</title>
+                <model>EasyTransacMultiPayments</model>
                 <three_d_secure>yes</three_d_secure>
-                <order_status>pending</order_status>
                 <allowspecific>0</allowspecific>
-                <min_order_total>0.50</min_order_total>
+                <min_order_total>50</min_order_total>
                 <is_gateway>1</is_gateway>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
                 <can_use_checkout>1</can_use_checkout>
                 <cctypes>AE,VI,MC,DI,JCB,CUP,DN,MI</cctypes>
-            </easytransac_gateway>
+            </easytransac_multipayment>
+            <!--//  EasyTransac Multiple Payment //-->
+
+            <!--EasyTransac Card Payment-->
+            <card_gateway>
+                <active>0</active>
+                <title>EasyTransac Card Payment</title>
+                <model>EasyTransacCardPayments</model>
+                <three_d_secure>yes</three_d_secure>
+                <allowspecific>0</allowspecific>
+                <min_order_total>50</min_order_total>
+                <useccv>1</useccv>
+                <cctypes>VI,MC</cctypes>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <can_authorize>1</can_authorize>
+                <can_refund>1</can_refund>
+                <can_capture>1</can_capture>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>0</is_gateway>
+<!--                todo -->
+<!--                transaction request/response fields displayed on payment information block (can be any fields from payment additional information)-->
+                <paymentInfoKeys>FRAUD_MSG_LIST</paymentInfoKeys>
+                <privateInfoKeys>FRAUD_MSG_LIST</privateInfoKeys>
+            </card_gateway>
+            <!--//  EasyTransac Card Payment  //-->
         </payment>
     </default>
 </config>

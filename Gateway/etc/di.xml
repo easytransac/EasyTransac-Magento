@@ -1,0 +1,268 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Easytransac_Gateway payment method.
+ *
+ * @category    Easytransac
+ * @package     Easytransac_Gateway
+ * @author      Easytrasac
+ * @copyright   Easytransac (https://www.easytransac.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Easytransac\Gateway\Api\EasyTransacDataInterface" type="Easytransac\Gateway\Model\EasyTransacData"/>
+
+    <preference for="Easytransac\Gateway\Api\Data\CreditCardInterface" type="Easytransac\Gateway\Model\CreditCard"/>
+    <preference for="Easytransac\Gateway\Api\CreditCardRepositoryInterface" type="Easytransac\Gateway\Model\CreditCardRepository"/>
+    <preference for="Easytransac\Gateway\Api\Data\CreditCardSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+
+    <!-- Configuration reader -->
+    <virtualType name="EasyTransacCardPaymentsConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Easytransac\Gateway\Model\Ui\CardPayment\ConfigProvider::EASYTRANSAC_CC</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Payment\Model\CcGenericConfigProvider">
+        <arguments>
+            <argument name="methodCodes" xsi:type="array">
+                <item name="card_gateway" xsi:type="const">Easytransac\Gateway\Model\Ui\CardPayment\ConfigProvider::EASYTRANSAC_CC</item>
+                <item name="easytransac_multipayment" xsi:type="const">Easytransac\Gateway\Model\Ui\MultiPayment\ConfigProvider::EASYTRANSAC_MULTIPAYMENT</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Payment Method EasyTransac Card configuration -->
+    <virtualType name="EasyTransacCardPayments" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Easytransac\Gateway\Model\Ui\CardPayment\ConfigProvider::EASYTRANSAC_CC</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">EasyTransacCardPaymentsValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">EasyTransacCardPaymentsCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- valueHandlerPool infrastructure -->
+    <virtualType name="EasyTransacCardPaymentsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">EasyTransacCardPaymentsConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- default infrastructure -->
+    <virtualType name="EasyTransacCardPaymentsConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">EasyTransacCardPaymentsConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CommandsPool infrastructure -->
+    <virtualType name="EasyTransacCardPaymentsCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">EasyTransacCardPaymentsCaptureCommand</item>
+                <item name="capture" xsi:type="string">EasyTransacCardPaymentsCaptureCommand</item>
+                <item name="refund" xsi:type="string">EasyTransacCardPaymentsRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture command -->
+    <virtualType name="EasyTransacCardPaymentsCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">EasyTransacCardPaymentsCaptureRequest</argument>
+            <argument name="handler" xsi:type="object">EasyTransacCreditCardResponseHandlerComposite</argument>
+            <argument name="transferFactory" xsi:type="object">Easytransac\Gateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Easytransac\Gateway\Gateway\Http\Client\TransactionCapture</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Refund Command -->
+    <virtualType name="EasyTransacCardPaymentsRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">EasyTransacCreditCardRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Easytransac\Gateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Easytransac\Gateway\Gateway\Http\Client\TransactionRefund</argument>
+            <!--            <argument name="validator" xsi:type="object">Easytransac\Gateway\Gateway\Validator\CreditCard\RefundValidator</argument>-->
+            <argument name="handler" xsi:type="object">EasyTransacCreditCardRefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Refund Request Builder Composite -->
+    <virtualType name="EasyTransacCreditCardRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund" xsi:type="string">Easytransac\Gateway\Gateway\Request\CreditCard\RefundBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Refund Response Handler Composite -->
+    <virtualType name="EasyTransacCreditCardRefundResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="refund" xsi:type="string">Easytransac\Gateway\Gateway\Response\CreditCard\RefundHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Response handlers -->
+    <virtualType name="EasyTransacCreditCardResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">Easytransac\Gateway\Gateway\Response\PaymentDetailsHandler</item>
+                <item name="txnid" xsi:type="string">Easytransac\Gateway\Gateway\Response\TransactionIdHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture Request -->
+    <virtualType name="EasyTransacCardPaymentsCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Easytransac\Gateway\Gateway\Request\PaymentDataBuilder</item>
+                <item name="customer" xsi:type="string">Easytransac\Gateway\Gateway\Request\CustomerInfoBuilder</item>
+                <item name="devicedata" xsi:type="string">Easytransac\Gateway\Gateway\Request\DeviceDataBuilder</item>
+                <item name="address" xsi:type="string">Easytransac\Gateway\Gateway\Request\AddressDataBuilder</item>
+                <item name="3dsecure" xsi:type="string">Easytransac\Gateway\Gateway\Request\ThreeDSecureDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- EasyTransac Multi Payment Configuration -->
+    <virtualType name="EasyTransacMultiPayments" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Easytransac\Gateway\Model\Ui\MultiPayment\ConfigProvider::EASYTRANSAC_MULTIPAYMENT</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">EasyTransacMultiPaymentsValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">EasyTransacMultiPaymentsCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Start Multi Payment valueHandlerPool infrastructure -->
+    <virtualType name="EasyTransacMultiPaymentsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">EasyTransacMultiConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multi Payment default infrastructure -->
+    <virtualType name="EasyTransacMultiConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">EasyTransacMultiPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="EasyTransacMultiPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Easytransac\Gateway\Model\Ui\MultiPayment\ConfigProvider::EASYTRANSAC_MULTIPAYMENT</argument>
+        </arguments>
+    </virtualType>
+    <!-- End Multi Payment valueHandlerPool infrastructure -->
+
+    <!-- Start Multi Payment commandPool infrastructure -->
+    <virtualType name="EasyTransacMultiPaymentsCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">EasyTransacMultiAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">EasyTransacMultiCaptureCommand</item>
+                <item name="refund" xsi:type="string">EasyTransacMultiPaymentsRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Start Multi Authorize Command-->
+    <virtualType name="EasyTransacMultiAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">EasyTransacMultiAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Easytransac\Gateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Easytransac\Gateway\Gateway\Http\Client\MultiPaymentTransaction</argument>
+            <argument name="handler" xsi:type="object">EasyTransacMultiAuthorizationHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorize requestBuilder -->
+    <virtualType name="EasyTransacMultiAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="customer" xsi:type="string">Easytransac\Gateway\Gateway\Request\CustomerInfoBuilder</item>
+                <item name="address" xsi:type="string">\Easytransac\Gateway\Gateway\Request\AddressDataBuilder</item>
+                <item name="payment" xsi:type="string">Easytransac\Gateway\Gateway\Request\PaymentDataBuilder</item>
+                <item name="devicedata" xsi:type="string">Easytransac\Gateway\Gateway\Request\DeviceDataBuilder</item>
+                <!--                <item name="returnurl" xsi:type="string">Easytransac\Gateway\Gateway\Request\ReturnUrlDataBuilder</item>-->
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Authorize Handler -->
+    <virtualType name="EasyTransacMultiAuthorizationHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txn_id" xsi:type="string">Easytransac\Gateway\Gateway\Response\TransactionIdHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- End Multi Authorize Command-->
+
+    <!-- Capture command  -->
+    <virtualType name="EasyTransacMultiCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">EasyTransacMultiCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Easytransac\Gateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Easytransac\Gateway\Gateway\Http\Client\MultiPaymentTransaction</argument>
+            <argument name="handler" xsi:type="object">EasyTransacPaymentCaptureResponseHandlerComposite</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Capture Request -->
+    <virtualType name="EasyTransacMultiCaptureRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="capture" xsi:type="string">Easytransac\Gateway\Gateway\Request\MultiPayment\CaptureDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multi Payment Capture Handler -->
+    <virtualType name="EasyTransacPaymentCaptureResponseHandlerComposite" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="capture" xsi:type="string">Easytransac\Gateway\Gateway\Response\PaymentCaptureDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="EasyTransacMultiPaymentsRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Easytransac\Gateway\Gateway\Request\MultiPayment\RefundBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Easytransac\Gateway\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Easytransac\Gateway\Gateway\Http\Client\MultiPaymentRefund</argument>
+            <argument name="handler" xsi:type="object">EasyTransacCreditCardRefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!--easyTransac Logger -->
+    <type name="Easytransac\Gateway\Model\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Easytransac\Gateway\Model\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">easyTransac</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Easytransac\Gateway\Model\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- // easyTransac Logger  //  -->
+</config>

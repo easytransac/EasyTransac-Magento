@@ -1,7 +1,19 @@
 <?php
+/**
+ * Easytransac_Gateway payment method.
+ *
+ * @category    Easytransac
+ * @package     Easytransac_Gateway
+ * @author      Easytrasac
+ * @copyright   Easytransac (https://www.easytransac.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+declare(strict_types=1);
 
-\Magento\Framework\Component\ComponentRegistrar::register(
-    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+use Magento\Framework\Component\ComponentRegistrar;
+
+ComponentRegistrar::register(
+    ComponentRegistrar::MODULE,
     'Easytransac_Gateway',
     __DIR__
 );
