@@ -1,0 +1,30 @@
+{
+    "easytransac_cc_details": {
+        "column": {
+            "id": true,
+            "customer_id": true,
+            "cc_number": true,
+            "cc_month": true,
+            "cc_year": true,
+            "cc_type": true,
+            "creation_time": true,
+            "update_time": true,
+            "alias": true,
+            "user_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "EASYTRANSAC_CC_DETAILS_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "easytransac_installment_amount": true
+        }
+    },
+    "sales_order_grid": {
+        "column": {
+            "easytransac_installment_amount": true
+        }
+    }
+}

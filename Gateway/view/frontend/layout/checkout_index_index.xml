@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <!--
 /**
-* Easytransac_Gateway layout configuration.
-*
-* @category    Easytransac
-* @package     Easytransac_Gateway
-* @author      Easytrasac
-* @copyright   Easytransac (https://www.easytransac.com)
-* @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
+ * Easytransac_Gateway payment method.
+ *
+ * @category    Easytransac
+ * @package     Easytransac_Gateway
+ * @author      Easytrasac
+ * @copyright   Easytransac (https://www.easytransac.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 -->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="checkout.root">
             <arguments>
@@ -29,10 +30,19 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="easytransac_gateway-payments" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">Easytransac_Gateway/js/view/payment/easytransac-payments</item>
+                                                                    <item name="component" xsi:type="string">
+                                                                        Easytransac_Gateway/js/view/payment/easytransac-payments
+                                                                    </item>
                                                                     <item name="methods" xsi:type="array">
-                                                                        <item name="easytransac_gateway" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        <item name="easytransac_multipayment" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">
+                                                                                true
+                                                                            </item>
+                                                                        </item>
+                                                                        <item name="card_gateway" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">
+                                                                                true
+                                                                            </item>
                                                                         </item>
                                                                     </item>
                                                                 </item>
