@@ -15,13 +15,11 @@ namespace Easytransac\Gateway\Setup\Patch\Data;
 use Magento\Customer\Model\Customer;
 use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Eav\Model\Entity\Attribute\Set;
 use Magento\Eav\Model\Entity\Attribute\SetFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
-use Zend_Validate_Exception;
 
 class AddEasytransacClientIdCustomerAttribute implements DataPatchInterface, PatchRevertableInterface
 {
@@ -60,7 +58,6 @@ class AddEasytransacClientIdCustomerAttribute implements DataPatchInterface, Pat
      *
      * @return AddEasytransacClientIdCustomerAttribute|void
      * @throws LocalizedException
-     * @throws Zend_Validate_Exception
      */
     public function apply()
     {

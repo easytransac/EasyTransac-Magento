@@ -14,6 +14,7 @@ namespace Easytransac\Gateway\Gateway\Response;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
 
 class PaymentCaptureDetailsHandler implements HandlerInterface
 {
@@ -39,7 +40,7 @@ class PaymentCaptureDetailsHandler implements HandlerInterface
     /**
      * Set payment to pending to ensure that the invoice is created in an OPEN state
      *
-     * @param $payment
+     * @param Payment $payment
      * @return mixed
      */
     private function setInvoiceToPending($payment)
