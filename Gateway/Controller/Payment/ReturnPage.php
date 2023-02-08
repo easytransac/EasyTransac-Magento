@@ -53,7 +53,7 @@ class ReturnPage implements ActionInterface
         RedirectFactory  $redirectFactory,
         RequestInterface $request,
         Session $checkoutSession,
-        Logger $logger,
+        Logger $logger
     ) {
         $this->redirectFactory = $redirectFactory;
         $this->request = $request;

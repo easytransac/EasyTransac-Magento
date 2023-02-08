@@ -37,7 +37,7 @@ class NotificationUrl extends Field
         Context $context,
         StoreManagerInterface $storeManager,
         array $data = [],
-        ?SecureHtmlRenderer $secureRenderer = null,
+        ?SecureHtmlRenderer $secureRenderer = null
     ) {
         parent::__construct($context, $data, $secureRenderer);
         $this->storeManager = $storeManager;

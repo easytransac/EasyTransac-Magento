@@ -7,17 +7,7 @@ EasyTransac payment gateway Magento2 extension. For Magento 2.4.x
 
 ## Installation
 
-Download the extension form <a href="https://github.com/easytransac/EasyTransac-Magento">github</a>.
-
-1. Unzip the extension and move to app/code directory of magento root
-2. Enter following commands to enable module:
-
-* `php bin/magento module:enable Easytransac_Gateway`
-* `php bin/magento setup:upgrade`
-* `php bin/magento setup:di:compile`
-* `php bin/magento cache:clean`
-
-## API Library
+### API Library
 
 This module is using the EasyTransac APIs Library for PHP for all (API) connections to EasyTransac.
 <a href="https://github.com/easytransac/easytransac-sdk-php">This library can be found here</a>
@@ -27,6 +17,16 @@ Or
 Download using Command:
 
 `composer require easytransac/easytransac-sdk-php`
+
+Download the extension form <a href="https://github.com/easytransac/EasyTransac-Magento">github</a>.
+
+1. Unzip the extension and move to app/code directory of magento root
+2. Enter following commands to enable module:
+
+* `php bin/magento module:enable Easytransac_Gateway`
+* `php bin/magento setup:upgrade`
+* `php bin/magento setup:di:compile`
+* `php bin/magento cache:clean`
 
 ## Verified payment methods
 

@@ -37,7 +37,7 @@ class SavedCards implements ArgumentInterface
      */
     public function __construct(
         CustomerSession $customerSession,
-        CreditCard $creditCard,
+        CreditCard $creditCard
     ) {
         $this->creditCard = $creditCard;
         $this->customerSession = $customerSession;
