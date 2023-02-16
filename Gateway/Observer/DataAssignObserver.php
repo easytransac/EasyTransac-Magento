@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Easytransac\Gateway\Observer;
 
-use Easytransac\Gateway\Model\Config;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;

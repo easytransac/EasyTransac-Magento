@@ -14,7 +14,6 @@ namespace Easytransac\Gateway\Model\EasyTransacApi;
 
 use EasyTransac\Entities\Customer;
 use EasyTransac\Entities\OneClickTransaction;
-use EasyTransac\Entities\PaymentPageInfos;
 use EasyTransac\Entities\PaymentPageTransaction;
 use Easytransac\Gateway\Api\CreditCardRepositoryInterface;
 use Easytransac\Gateway\Api\Data\CreditCardInterface;

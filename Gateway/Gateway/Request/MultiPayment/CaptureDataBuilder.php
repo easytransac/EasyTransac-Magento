@@ -15,7 +15,7 @@ namespace Easytransac\Gateway\Gateway\Request\MultiPayment;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Helper\Formatter;
-use PayPal\Braintree\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Helper\SubjectReader;
 
 class CaptureDataBuilder implements BuilderInterface
 {

@@ -14,7 +14,6 @@ namespace Easytransac\Gateway\Model\EasyTransacApi;
 
 use EasyTransac\Entities\Refund;
 use EasyTransac\Requests\PaymentRefund;
-use EasyTransac\Requests\Cancellation;
 use Magento\Framework\Exception\LocalizedException;
 
 class RefundApi extends AbstractApiCall
