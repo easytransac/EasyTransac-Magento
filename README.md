@@ -1,6 +1,12 @@
 Magento2- Easytransac_Gateway
 ============================
 
+## This repository is no longer maintained ⚠️
+
+This project is archived and will not receive any updates or bug fixes.
+
+Use at your own risk.
+
 ## Important functions for Magento 2
 
 EasyTransac payment gateway Magento2 extension. For Magento 2.4.x
